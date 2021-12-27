@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.board.dao.CommentsDao">
+	<insert id="CommentsWrite" parameterType="CommentsM">
+		insert into comments
+		values(reply_SEQ.NEXTVAL,#{board_no},#{comments_text},#{name},sysdate)
+	</insert>
+	<select id="CommentsList" parameterType="Integer"
+		resultType="CommentsM">
+		select * from comments where board_no=#{SEQNO} order by
+		comments_no asc
+	</select>
+	<delete id="Commentsdelete" parameterType="Integer">
+		delete from comments
+		where comments_no=#{comments_no}
+	</delete>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

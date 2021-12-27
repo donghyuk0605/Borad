@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.board.dao.BbsDao">
+	<select id="Allresult" resultType="bbsM">
+		select * from bbs order by
+		seqno desc
+	</select>
+	<select id="ViewDetail" parameterType="Integer"
+		resultType="bbsM">
+		select * from bbs where seqno=#{seqno}
+	</select>
+
+	<insert id="Write" parameterType="bbsM">
+		insert into bbs
+		values(#{seqno},#{title},#{content},#{id},sysdate,#{parent_id},#{group_id},#{order_no},#{file_url})
+	</insert>
+
+	<delete id="Delete" parameterType="HashMap">
+		delete from bbs
+		where GROUP_ID=#{delid} AND ORDER_NO <![CDATA[>=]]> #{delo_no}
+	<!-- 	seqno=#{seqno} -->
+	</delete>
+	<update id="Update" parameterType="bbsM">
+		update bbs set title=#{title}
+		,content=#{content},id=#{id},file_url=#{file_url} where
+		seqno=#{seqno}
+	</update>
+	<select id="pageselect" parameterType="Integer"
+		resultType="bbsM">
+		select
+		seqno,title,content,id,register_date,parent_id,group_id,order_no from
+		(
+		select rownum rn,
+		seqno,title,content,id,register_date,parent_id,group_id,order_no from
+		bbs order by seqno desc)
+		where rn > (#{pagenum}-1)*5
+		and rn <![CDATA[<]]>
+		(((#{pagenum}-1)*5)+6)
+	</select>
+
+	<select id="BbsCount" resultType="Integer">
+		select count(*)
+		from bbs
+	</select>
+	
+	<select id="MaxSeqno" resultType="Integer">
+		select max(seqno)
+		from bbs
+	</select>
+	<select id="MaxGroup" resultType="Integer">
+		select max(group_id)
+		from bbs
+	</select>
+	<select id="selectRownumBySeqno" parameterType="Integer"
+		resultType="Integer">
+		select rn from
+		(
+		select a.*, rownum rn from
+		(select * from bbs
+		order by group_id desc, order_no asc) a
+		)
+		where seqno = #{seqno};
+	</select>
+
+	<select id="getbbsReplyCondition" parameterType="Condition"
+		resultType="bbsM">
+	select seqno,LPAD(' ', 2*(LEVEL-1)) || title as title,content,id,register_date,parent_id,
+		group_id, order_no from
+		(select a.*, rownum rn from
+		(select * from bbs
+		) a
+		order by group_id desc, order_no asc)
+		where rn between #{startRow}
+		and #{endRow} 
+		START WITH parent_id=0
+		CONNECT BY PRIOR  seqno = parent_id
+		order by group_id desc, order_no asc
+	</select>
+
+	<update id="updateOrderNoReply" parameterType="bbsM">
+		update bbs set
+		order_no = order_no + 1
+		where group_id = #{group_id} and order_no >=
+		#{order_no}
+	</update>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
